@@ -5,9 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cloud-telemetry-intelligence-platform"
 version = "0.1.0"
-description = "Phase 1 telemetry ingestion pipeline for anomaly detection workflows"
+description = "Telemetry ingestion, preprocessing, and model training for anomaly detection workflows"
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+  "joblib>=1.5,<2",
+  "scikit-learn>=1.8,<1.9",
+]
 authors = [
   { name = "Yousef Abdelhadi" }
 ]
@@ -15,6 +19,7 @@ authors = [
 [project.scripts]
 telemetry-ingest = "cloud_telemetry_intelligence_platform.ingestion.cli:main"
 telemetry-preprocess = "cloud_telemetry_intelligence_platform.preprocessing.cli:main"
+telemetry-train = "cloud_telemetry_intelligence_platform.training.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

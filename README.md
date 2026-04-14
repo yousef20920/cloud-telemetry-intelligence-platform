@@ -200,6 +200,16 @@ Optional advanced model:
 
 - sequence autoencoder or LSTM only if the dataset supports it and there is enough time for proper tuning
 
+Current status:
+
+- implemented a training package under `src/cloud_telemetry_intelligence_platform/training/`
+- trains logistic regression and random forest classifiers for anomaly detection
+- trains linear regression and random forest regressors for next-window latency and throughput
+- trains Isolation Forest and KMeans for unsupervised anomaly scoring and failure-pattern clustering
+- supports optional XGBoost models when `xgboost` is installed locally
+- saves trained model artifacts under `artifacts/models/`
+- writes a model comparison report to `data/processed/reports/training_report.json`
+
 ### Phase 4: Evaluation
 
 Measure both predictive quality and operational usefulness.
@@ -297,6 +307,14 @@ Optional deep learning extras:
 pip install torch
 # or
 pip install tensorflow
+```
+
+For the current repository state, the core model training dependencies are captured in `requirements.txt`. A local setup looks like:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### Step 2: Stand up local services
@@ -409,6 +427,23 @@ Start with simple models before deep learning:
 - Isolation Forest for unsupervised anomaly detection
 
 Then add tree-based models and compare quality against the baselines.
+
+The repository already includes a working training pipeline. After preprocessing, run:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m cloud_telemetry_intelligence_platform.training.cli \
+  --project-root . \
+  --test-size 0.4 \
+  --random-state 42
+```
+
+This command will:
+
+- read `data/processed/features/window_features.csv`
+- select numeric feature columns automatically
+- train classification, regression, and unsupervised baseline models
+- save model artifacts under `artifacts/models/`
+- write a comparison report to `data/processed/reports/training_report.json`
 
 ### Step 7: Evaluate and document results
 
