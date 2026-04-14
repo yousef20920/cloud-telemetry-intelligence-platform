@@ -244,6 +244,15 @@ Analysis outputs:
 - error analysis notebooks
 - ablations on feature groups
 
+Current status:
+
+- implemented an evaluation package under `src/cloud_telemetry_intelligence_platform/evaluation/`
+- evaluates saved models across classification, regression, and unsupervised tasks
+- measures operational metrics such as batch latency, p95 latency, throughput, and false-positive rate
+- writes threshold sweeps, feature-ablation studies, and error-analysis CSVs under `data/processed/reports/`
+- renders feature-importance SVG plots for models that expose coefficients or feature importances
+- generates both Markdown and HTML dashboards for quick review
+
 ### Phase 5: Serving and deployment
 
 Expose a lightweight inference API for real-time or batch scoring.
@@ -454,6 +463,22 @@ Create notebooks and scripts that:
 - analyze feature importance
 - measure inference latency
 - summarize tradeoffs between supervised and unsupervised methods
+
+The repository already includes a working evaluation pipeline. After training, run:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m cloud_telemetry_intelligence_platform.evaluation.cli \
+  --project-root .
+```
+
+This command will:
+
+- read the saved training report and model artifacts
+- recompute evaluation metrics on the current feature set
+- benchmark inference latency and throughput
+- generate threshold sweeps for probabilistic classifiers
+- run feature-group ablations by zeroing feature families
+- export Markdown and HTML dashboards under `data/processed/reports/`
 
 ### Step 8: Add a serving layer
 
