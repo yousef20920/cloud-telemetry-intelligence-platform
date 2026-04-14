@@ -164,6 +164,17 @@ Key engineered features:
 - short-term versus long-term drift
 - event frequency by component
 
+Current status:
+
+- implemented a preprocessing package under `src/cloud_telemetry_intelligence_platform/preprocessing/`
+- standardizes timestamps into fixed windows and normalizes metric units into canonical forms
+- writes cleaned telemetry rows to `data/processed/cleaned/telemetry_cleaned.csv`
+- builds model-ready window features in `data/processed/features/window_features.csv`
+- imputes missing metric values with prior observations or metric defaults
+- computes rolling mean, std, min, max, and slope for each metric
+- generates anomaly classification labels and next-window regression targets
+- emits a preprocessing report under `data/processed/reports/preprocessing_report.json`
+
 ### Phase 3: Model development
 
 Train and compare multiple model families.
@@ -369,6 +380,25 @@ Implement reusable transforms for:
 - label generation
 
 Persist processed features so training and serving use the same logic.
+
+The repository already includes a working preprocessing pipeline. After ingestion, run:
+
+```bash
+PYTHONPATH=src python3 -m cloud_telemetry_intelligence_platform.preprocessing.cli \
+  --project-root . \
+  --window-minutes 1 \
+  --rolling-window-size 3
+```
+
+This command will:
+
+- read `data/processed/curated/telemetry_records.csv`
+- standardize metric units such as percent to ratio
+- build fixed 1-minute windows per service and host
+- impute missing metrics using the most recent value or a metric default
+- compute rolling statistics and z-score normalization
+- generate `is_anomaly`, `target_next_latency_ms`, and `target_next_throughput_rps`
+- write cleaned and feature-engineered outputs under `data/processed/`
 
 ### Step 6: Train baselines first
 

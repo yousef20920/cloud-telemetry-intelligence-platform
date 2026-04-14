@@ -14,10 +14,10 @@ authors = [
 
 [project.scripts]
 telemetry-ingest = "cloud_telemetry_intelligence_platform.ingestion.cli:main"
+telemetry-preprocess = "cloud_telemetry_intelligence_platform.preprocessing.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
