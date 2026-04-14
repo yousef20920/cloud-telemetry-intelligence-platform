@@ -1,0 +1,4 @@
+{"timestamp":"2026-04-14T10:03:00Z","service_name":"edge-api","host_id":"host-01","metric_name":"request_failures","metric_value":12,"unit":"count","event_type":"event","event_summary":"upstream timeout spike","anomaly_label":"anomaly"}
+{"timestamp":"2026-04-14T10:04:00Z","service_name":"mesh-gateway","host_id":"gateway-03","metric_name":"throughput_rps","metric_value":12450,"unit":"rps","event_type":"metric","event_summary":"","anomaly_label":"normal"}
+{"timestamp":"bad-timestamp","service_name":"mesh-gateway","host_id":"gateway-03","metric_name":"latency_ms","metric_value":91,"unit":"ms","event_type":"metric","event_summary":"","anomaly_label":"normal"}
+

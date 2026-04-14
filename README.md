@@ -130,6 +130,17 @@ Implementation notes:
 - Use `SQLAlchemy` or direct PostgreSQL connectors for persistence.
 - Make each ingestion job idempotent so reruns do not duplicate records.
 
+Current status:
+
+- implemented a Phase 1 ingestion package under `src/cloud_telemetry_intelligence_platform/ingestion/`
+- supports CSV, JSON, JSONL, and SQLite telemetry inputs
+- validates timestamps, service IDs, host IDs, and known metric ranges
+- archives raw inputs into `data/raw/`
+- writes curated normalized records into `data/processed/curated/telemetry_records.csv`
+- writes per-source ingestion reports and a checksum manifest under `data/processed/`
+- skips already ingested files by checksum to keep reruns idempotent
+- includes sample telemetry inputs in `data/synthetic/` and unit tests in `tests/`
+
 ### Phase 2: Cleaning and preprocessing
 
 Prepare telemetry for model training.
@@ -267,6 +278,8 @@ Install the expected dependencies once `requirements.txt` or `pyproject.toml` is
 pip install pandas numpy matplotlib scikit-learn xgboost fastapi uvicorn sqlalchemy psycopg[binary] jupyter pytest
 ```
 
+For the current Phase 1 implementation, the ingestion pipeline itself uses the Python standard library so it can run immediately after cloning without extra runtime dependencies.
+
 Optional deep learning extras:
 
 ```bash
@@ -319,6 +332,31 @@ Implement loaders that:
 - validate schema and ranges
 - write cleaned tables to PostgreSQL
 - export curated training data to `data/processed/`
+
+The repository already includes a working local ingestion pipeline. Run it from the repo root with:
+
+```bash
+PYTHONPATH=src python3 -m cloud_telemetry_intelligence_platform.ingestion.cli \
+  --project-root . \
+  --input data/synthetic/sample_metrics.csv \
+  --input data/synthetic/sample_events.jsonl
+```
+
+This command will:
+
+- archive raw inputs under `data/raw/<run_id>/`
+- generate per-source reports under `data/processed/reports/`
+- update the checksum manifest at `data/processed/manifests/ingestion_manifest.json`
+- append clean records to `data/processed/curated/telemetry_records.csv`
+
+SQLite sources are supported as well:
+
+```bash
+PYTHONPATH=src python3 -m cloud_telemetry_intelligence_platform.ingestion.cli \
+  --project-root . \
+  --input path/to/telemetry.db \
+  --sql-table telemetry
+```
 
 ### Step 5: Build feature pipelines
 
@@ -373,6 +411,12 @@ At minimum, add:
 
 Then configure GitHub Actions to run linting, tests, and basic build checks on every pull request.
 
+The current test suite can be run with:
+
+```bash
+PYTHONPATH=src python3 -m unittest discover -s tests -v
+```
+
 ## Recommended milestones
 
 1. Telemetry schema, ingestion pipeline, and data validation
@@ -396,4 +440,3 @@ This project is successful if it can:
 ## Resume-ready summary
 
 Built an end-to-end ML platform for cloud and network telemetry that ingests, cleans, and models time-series infrastructure data for anomaly detection and performance regression prediction using Python, pandas, scikit-learn, and FastAPI.
-

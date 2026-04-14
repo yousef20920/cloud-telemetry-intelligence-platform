@@ -1,0 +1,8 @@
+timestamp,service_name,host_id,metric_name,metric_value,unit,event_type,event_summary,anomaly_label
+2026-04-14T10:00:00Z,edge-api,host-01,cpu_pct,71.4,percent,metric,,normal
+2026-04-14T10:00:00Z,edge-api,host-01,latency_ms,182.3,ms,metric,,normal
+2026-04-14T10:01:00Z,edge-api,host-01,error_rate,0.42,ratio,event,upstream timeouts detected,anomaly
+2026-04-14T10:01:00Z,core-router,router-07,packet_drop_pct,3.6,percent,event,packet loss burst detected,anomaly
+2026-04-14T10:01:00Z,core-router,router-07,packet_drop_pct,3.6,percent,event,packet loss burst detected,anomaly
+2026-04-14T10:02:00Z,analytics-worker,worker-22,memory_pct,140.0,percent,metric,,normal
+
