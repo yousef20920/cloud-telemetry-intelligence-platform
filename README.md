@@ -275,6 +275,15 @@ GET  /health
 GET  /metrics
 ```
 
+Current status:
+
+- implemented a FastAPI serving package under `src/cloud_telemetry_intelligence_platform/serving/`
+- loads trained artifacts from `artifacts/models/` using the saved training report
+- exposes `/predict/anomaly`, `/predict/regression`, `/predict/batch`, `/health`, and `/metrics`
+- converts telemetry observations plus optional recent history into the exact feature layout expected by the trained models
+- logs prediction requests to `data/serving/predictions.jsonl` for local auditing
+- includes API tests that train temporary models and verify live inference responses through FastAPI
+
 ### Phase 6: Reliability and developer workflow
 
 Make the project feel like production-grade engineering rather than a notebook dump.
@@ -487,7 +496,51 @@ Train, serialize, and load the selected models in FastAPI. Add request validatio
 Run the service locally:
 
 ```bash
-uvicorn src.serving.api:app --reload
+PYTHONPATH=src .venv/bin/uvicorn cloud_telemetry_intelligence_platform.serving.api:app --reload
+```
+
+You can then call the API with a payload shaped like:
+
+```json
+{
+  "service_name": "edge-api",
+  "host_id": "host-01",
+  "window_start": "2026-04-14T10:12:30Z",
+  "window_minutes": 1,
+  "rolling_window_size": 3,
+  "history": [
+    {
+      "cpu_utilization": 0.7,
+      "latency_ms": 120.0,
+      "throughput_rps": 900.0,
+      "error_rate": 0.02
+    }
+  ],
+  "observations": [
+    {
+      "timestamp": "2026-04-14T10:12:05Z",
+      "metric_name": "cpu_pct",
+      "metric_value": 88.0,
+      "unit": "percent"
+    },
+    {
+      "timestamp": "2026-04-14T10:12:35Z",
+      "metric_name": "packet_drop_pct",
+      "metric_value": 3.0,
+      "unit": "percent",
+      "event_type": "event",
+      "event_summary": "packet loss burst"
+    }
+  ]
+}
+```
+
+Example endpoints:
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict/anomaly \
+  -H "Content-Type: application/json" \
+  -d @payload.json
 ```
 
 ### Step 9: Add tests and CI
